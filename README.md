@@ -1,31 +1,95 @@
-# RISE-
-RISE is an AI-powered personal productivity web application that helps users manage tasks, plan study schedules, and organize daily activities. Using prompt-engineered AI and a modern dashboard, RISE delivers smart planning, reminders, and productivity insights across all devices.
 🚀 RISE – AI Personal Productivity Assistant
 
-RISE is a modern, AI-powered personal productivity web application designed to help users manage tasks, plan study schedules, and organize daily activities efficiently. It combines intelligent automation, prompt-engineered AI, and a premium dashboard UI to deliver a real-world productivity solution.
+RISE is a modern, offline-first AI-powered personal productivity web application designed to help users manage tasks, study schedules, and daily goals efficiently. The project focuses on clean UI, smooth animations, and persistent per-device data storage without requiring a backend.
 
 ✨ Features
 
-📋 Task management with priorities and deadlines
+🧠 Smart Task Management – Create, update, and delete tasks
 
-📚 Study planner for structured learning schedules
+📅 Study Planner & Daily Goals
 
-🤖 AI-powered chat assistant for smart planning
+💾 Permanent Per-Device Storage using localStorage
 
-📊 Interactive dashboard with productivity insights
+📴 Offline Support (works without internet)
 
-🗓️ Calendar-based planning and reminders
+🎨 Responsive & Smooth UI (all screen sizes)
 
-📱 Fully responsive design for all devices
+⚡ Lightweight & Fast (no backend required)
 
-🎨 Smooth animations and modern UI
+🛠 Tech Stack
 
-🧠 AI Capabilities
+Frontend
 
-Generates personalized daily plans
+HTML5
 
-Breaks complex tasks into simple steps
+CSS3 (Animations & Responsive Design)
 
-Suggests optimized study schedules
+JavaScript (ES6+)
 
-Uses structured prompt engineering with LLMs
+Storage
+
+Browser localStorage (Offline-first)
+
+
+⚙️ How It Works
+
+User data (tasks, goals, settings) is saved in localStorage
+
+Data persists after refresh or browser restart
+
+App restores state automatically on page load
+
+Fully functional offline
+
+▶️ How to Run Locally
+git clone https://github.com/Armaan582/RISE.git
+
+
+Then open index.html in your browser.
+
+📌 Use Cases
+
+Student productivity & study planning
+
+Personal task management
+
+Offline-first web app
+
+Resume & portfolio project
+
+🚧 Limitations
+
+Data stored per device & browser only
+
+Clearing browser data removes saved info
+
+No cross-device sync (yet)
+
+🔮 Future Enhancements
+
+AI-based task suggestions
+
+Cloud sync (Firebase)
+
+User authentication
+
+Calendar & email integration
+
+Progressive Web App (PWA)
+
+👨‍💻 Author
+
+Armaan
+GitHub: @Armaan582
+
+College Student | Web Development & AI Enthusiast
+
+⭐ Support
+
+If you like this project:
+
+⭐ Star the repo
+
+🍴 Fork it
+
+📚 Use it for learning
