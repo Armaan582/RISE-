@@ -415,16 +415,28 @@
             /* Single column layout - Force stack */
             .dash-grid { grid-template-columns: 1fr; gap: 1rem; }
             /* Explicitly override inline span styles to force 1-by-1 stacking */
-            .card { grid-column: 1 / -1 !important; }
+            .card { grid-column: 1 / -1 !important; padding: 1.25rem; }
             
             .content-area { padding: 1rem; padding-bottom: 5rem; }
+            
+            /* Topbar Fixes */
             .topbar { padding: 0 1rem; }
             .search-container { display: none; }
             
-            /* Enhanced Card Spacing for Mobile */
-            .card { padding: 1.25rem; }
+            /* Hide Profile Icon */
+            #top-avatar { display: none; }
             
-            /* Calendar Tweaks for Mobile */
+            /* Fix Spacing: Push branding away from actions */
+            .mobile-header-elements { 
+                margin-right: auto; /* Pushes content to the left and creates space */
+                gap: 0.8rem;
+            }
+            .topbar-brand { margin-right: 1rem; } /* Explicit gap between Text and Icons */
+            
+            /* Ensure Actions stay on right */
+            .top-actions { gap: 0.5rem; }
+            
+            /* Card & Widget Tweaks */
             .cal-date { aspect-ratio: auto; min-height: 50px; font-size: 0.8rem; }
             .calendar-grid-header { font-size: 0.8rem; }
             
@@ -432,9 +444,11 @@
             .icon-btn { width: 44px; height: 44px; }
             .nav-item { padding: 1rem; }
             
+            /* Toast Position */
             #toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
             .toast { width: 100%; justify-content: center; }
         }
+        
     </style>
 </head>
 <body data-theme="light">
