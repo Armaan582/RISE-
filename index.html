@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RISE | AI Productivity Assistant</title>
+    
+    <!-- Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* * =========================================
+         * 1. CSS VARIABLES & THEME
+         * =========================================
+         */
+        :root {
+            /* Palette - Light Premium */
+            --bg-body: #f3f4f6;       
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f9fafb;
+            
+            /* Dynamic Primary Color (Default: Indigo) */
+            --primary: #4f46e5;       
+            --primary-light: #e0e7ff; 
+            --primary-dark: #4338ca;
+            
+            --accent: #8b5cf6;        
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            
+            --text-main: #111827;     
+            --text-secondary: #6b7280; 
+            
+            --border: #e5e7eb;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            
+            --transition: all 0.25s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            
+            --primary-light: rgba(79, 70, 229, 0.2); 
+            --text-main: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+
+        /* * =========================================
+         * 2. RESET & BASE STYLES
+         * =========================================
+         */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        button { cursor: pointer; border: none; font-family: inherit; background: none; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* * =========================================
+         * 3. LAYOUT GRID
+         * =========================================
+         */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Brand Area */
+        .brand-area { display: flex; align-items: center; gap: 0.8rem; }
+        .brand-logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0;
+        }
+        .brand-text {
+            font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--text-main) 0%, var(--primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .sidebar .brand-area { margin-bottom: 2rem; padding: 0 0.5rem; }
+
+        /* Nav Menu */
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .nav-item {
+            padding: 0.8rem 1rem; border-radius: var(--radius-md); color: var(--text-secondary);
+            display: flex; align-items: center; gap: 0.8rem; font-weight: 600;
+            transition: var(--transition); cursor: pointer;
+        }
+        .nav-item:hover { background: var(--bg-body); color: var(--text-main); transform: translateX(4px); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .nav-item i { font-size: 1.3rem; }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 0.8rem;
+        }
+        .user-avatar-lg {
+            width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--primary); padding: 2px; background: white;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg-body);
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 70px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 2rem; position: sticky; top: 0; z-index: 40; border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        [data-theme="dark"] .topbar { background: rgba(30, 41, 59, 0.85); }
+
+        .mobile-header-elements { display: flex; align-items: center; gap: 1rem; }
+        .topbar-brand { display: none; }
+        .mobile-menu-btn { display: none; font-size: 1.8rem; color: var(--text-main); padding: 0.2rem; cursor: pointer; }
+
+        .search-container { position: relative; width: 320px; }
+        .search-container i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .search-input {
+            width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; border-radius: 99px;
+            border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);
+            font-size: 0.9rem; transition: var(--transition);
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+        .top-actions { display: flex; align-items: center; gap: 0.8rem; }
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border);
+            transition: var(--transition); font-size: 1.2rem; position: relative;
+        }
+        .icon-btn:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        
+        .badge {
+            position: absolute; top: -2px; right: -2px; width: 18px; height: 18px;
+            background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--bg-card);
+        }
+
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 200; display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+        
+        .custom-modal {
+            background: var(--bg-card); width: 90%; max-width: 400px;
+            padding: 1.5rem; border-radius: var(--radius-lg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--border);
+            transform: scale(0.95); transition: transform 0.2s;
+        }
+        .modal-overlay.active .custom-modal { transform: scale(1); }
+        
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main); }
+        .modal-input-group { margin-bottom: 1.5rem; }
+        .modal-input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+
+        /* Notification List in Modal */
+        .notification-list { 
+            list-style: none; max-height: 300px; overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 0.5rem; 
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+        .notif-item { padding: 0.8rem; border-bottom: 1px solid var(--border); display: flex; gap: 0.8rem; align-items: start; }
+        .notif-item:last-child { border: none; }
+        .notif-icon { color: var(--primary); font-size: 1.2rem; margin-top: 2px; }
+        .notif-text { font-size: 0.9rem; color: var(--text-main); }
+        .notif-time { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
+
+        /* Toast */
+        #toast-container {
+            position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; gap: 1rem; z-index: 9999; pointer-events: none;
+        }
+        .toast {
+            background: var(--bg-card); color: var(--text-main); padding: 0.8rem 1.2rem; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.8rem;
+            border-left: 4px solid var(--primary); animation: slideInRight 0.3s ease-out; pointer-events: auto; font-size: 0.9rem;
+        }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Content */
+        .content-area { 
+            flex: 1; overflow-y: auto; padding: 2rem; 
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+        .view-section { display: none; animation: fadeIn 0.4s ease-out; max-width: 1200px; margin: 0 auto; }
+        .view-section.active-view { display: block; }
+
+        /* Smooth Scroll for Chat */
+        #chat-history, #mini-chat-history { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+
+        /* Dashboard Grid */
+        .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .card {
+            background: var(--bg-card); border-radius: var(--radius-lg); padding: 1.5rem;
+            box-shadow: var(--shadow-md); border: 1px solid var(--border); transition: var(--transition);
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+
+        /* Calendar */
+        .calendar-header {
+            background: var(--bg-card); padding: 1rem; border: 1px solid var(--border);
+            border-radius: var(--radius-md); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .cal-select {
+            border: none; background: transparent; font-weight: 700; font-size: 1.1rem; padding: 0;
+            color: var(--text-main); cursor: pointer;
+        }
+        .cal-select option { background: var(--bg-card); color: var(--text-main); }
+        .calendar-grid-header {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center;
+            font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);
+        }
+        .calendar-grid-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
+        .cal-date {
+            aspect-ratio: 1; border: 1px solid var(--border); border-radius: 12px;
+            background: var(--bg-card); color: var(--text-main); cursor: pointer;
+            font-size: 0.9rem; transition: var(--transition);
+            display: flex; flex-direction: column; padding: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02); overflow: hidden;
+        }
+        .cal-date:hover { border-color: var(--primary); background: var(--bg-input); transform: scale(1.05); }
+        .cal-date.today { background: var(--primary-light); color: var(--primary); border-color: var(--primary); font-weight: 700; }
+        .cal-event-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: auto; align-self: center; }
+        
+        .cal-holiday {
+            font-size: 0.65rem; background: var(--accent); color: white; border-radius: 4px; padding: 1px 4px;
+            margin-top: auto; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* Widgets */
+        .donut-chart {
+            width: 140px; height: 140px; border-radius: 50%;
+            /* Gradient will be set by JS based on data */
+            background: var(--bg-input);
+            margin: 0 auto; display: flex; align-items: center; justify-content: center;
+            transition: background 0.5s ease;
+        }
+        .donut-hole {
+            width: 90px; height: 90px; background: var(--bg-card); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .bar-chart-container {
+            height: 180px; width: 100%; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 0.5rem;
+        }
+        .chart-bar {
+            width: 70%; background: var(--primary-light); border-radius: 4px 4px 0 0;
+            transition: height 1s ease;
+        }
+        .chart-bar.active { background: var(--primary); }
+        
+        /* Recent Activity List */
+        .recent-activity-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+        .activity-item {
+            display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem;
+            padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+        }
+        .activity-item:last-child { border: none; padding: 0; }
+        .activity-icon {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--bg-input);
+            display: flex; align-items: center; justify-content: center; color: var(--primary);
+        }
+
+        /* Common Elements */
+        .btn-primary {
+            background: var(--primary); color: white; padding: 0.7rem 1.5rem;
+            border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: var(--transition); font-size: 0.95rem;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary {
+            background: var(--bg-input); color: var(--text-main); padding: 0.7rem 1.5rem;
+            border-radius: 10px; font-weight: 600; border: 1px solid var(--border);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.7rem 1.5rem;
+            border-radius: 10px; font-weight: 600; border: 1px solid transparent;
+        }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        input, select {
+            width: 100%; padding: 0.8rem; border: 1px solid var(--border);
+            border-radius: 10px; background: var(--bg-input); color: var(--text-main); font-family: inherit;
+        }
+
+        /* Color Circle Styles */
+        .color-option {
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.selected { border-color: var(--text-main); }
+        .color-plus-btn {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--bg-input);
+            border: 1px dashed var(--text-secondary); color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .color-plus-btn input[type="color"] {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
+
+        /* Task Checkbox */
+        .custom-checkbox {
+            width: 24px; height: 24px; border: 2px solid var(--text-secondary);
+            border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all 0.2s;
+        }
+        .custom-checkbox.checked { background: var(--success); border-color: var(--success); }
+        .custom-checkbox.checked i { display: block; color: white; font-size: 0.9rem; }
+        .custom-checkbox i { display: none; }
+        .task-text { flex: 1; transition: all 0.2s; }
+        .task-text.completed { text-decoration: line-through; opacity: 0.6; color: var(--text-secondary); }
+
+        /* * =========================================
+         * 4. RESPONSIVE DESIGN (TABLET & MOBILE)
+         * =========================================
+         */
+
+        /* Tablet (max 1024px) */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; }
+            
+            /* Sidebar as Drawer - GPU Accelerated */
+            .sidebar {
+                position: fixed; left: 0; top: 0; bottom: 0; width: 280px;
+                box-shadow: 10px 0 50px rgba(0,0,0,0.2); 
+                transform: translateX(-100%); /* Start hidden */
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .sidebar.open { transform: translateX(0); } /* Slide in */
+            
+            .sidebar-overlay {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+                z-index: 45; display: none; opacity: 0; transition: opacity 0.3s;
+            }
+            .sidebar-overlay.active { display: block; opacity: 1; }
+
+            .topbar { padding: 0 1.5rem; }
+            .mobile-menu-btn { display: block; }
+            .topbar-brand { display: flex; margin-left: 0.5rem; }
+            .topbar-brand .brand-logo { width: 32px; height: 32px; font-size: 1.1rem; }
+            .topbar-brand .brand-text { font-size: 1.4rem; }
+
+            .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .card:nth-child(2) { grid-column: span 2; } /* Productivity chart spans full width */
+        }
+
+        /* Mobile (max 768px) */
+        @media (max-width: 768px) {
+            /* Force inputs to 16px to prevent iOS zoom */
+            input, select, textarea { font-size: 16px !important; }
+            
+            /* Single column layout - Force stack */
+            .dash-grid { grid-template-columns: 1fr; gap: 1rem; }
+            /* Explicitly override inline span styles to force 1-by-1 stacking */
+            .card { grid-column: 1 / -1 !important; }
+            
+            .content-area { padding: 1rem; padding-bottom: 5rem; }
+            .topbar { padding: 0 1rem; }
+            .search-container { display: none; }
+            
+            /* Enhanced Card Spacing for Mobile */
+            .card { padding: 1.25rem; }
+            
+            /* Calendar Tweaks for Mobile */
+            .cal-date { aspect-ratio: auto; min-height: 50px; font-size: 0.8rem; }
+            .calendar-grid-header { font-size: 0.8rem; }
+            
+            /* Larger Touch Targets */
+            .icon-btn { width: 44px; height: 44px; }
+            .nav-item { padding: 1rem; }
+            
+            #toast-container { bottom: 1rem; right: 1rem; left: 1rem; }
+            .toast { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div id="toast-container"></div>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div id="input-modal" class="modal-overlay">
+        <div class="custom-modal">
+            <h3 class="modal-title" id="modal-title">Add Item</h3>
+            <div class="modal-input-group">
+                <label id="modal-label-1">Title</label>
+                <input type="text" id="modal-input-1">
+            </div>
+            <div class="modal-input-group" id="modal-group-2" style="display:none;">
+                <label id="modal-label-2">Time</label>
+                <input type="time" id="modal-input-2">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmModal()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="custom-modal">
+            <h3 class="modal-title" id="confirm-title">Are you sure?</h3>
+            <p id="confirm-desc" style="color:var(--text-secondary); margin-bottom:1.5rem; line-height:1.5;">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-primary" id="confirm-yes-btn" style="background:var(--danger); border-color:var(--danger);">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-modal" class="modal-overlay">
+        <div class="custom-modal" style="max-width: 350px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 class="modal-title" style="margin:0;">Notifications</h3>
+                <button onclick="closeNotificationModal()" style="color:var(--text-secondary);"><i class="ph ph-x" style="font-size:1.2rem;"></i></button>
+            </div>
+            <ul class="notification-list" id="notification-list"></ul>
+            <button class="btn-secondary" style="width:100%; margin-top:1rem;" onclick="clearNotifications()">Clear All</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="brand-area">
+                <div class="brand-logo"><i class="ph-fill ph-rocket-launch"></i></div>
+                <div class="brand-text">RISE</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="router('dashboard', this)"><i class="ph ph-squares-four"></i><span>Dashboard</span></li>
+                <li class="nav-item" onclick="router('tasks', this)"><i class="ph ph-check-circle"></i><span>Tasks</span></li>
+                <li class="nav-item" onclick="router('planner', this)"><i class="ph ph-calendar-check"></i><span>Planner</span></li>
+                <li class="nav-item" onclick="router('calendar', this)"><i class="ph ph-calendar"></i><span>Calendar</span></li>
+                <li class="nav-item" onclick="router('ai', this)"><i class="ph ph-sparkle"></i><span>Assistant</span></li>
+                <li class="nav-item" onclick="router('reports', this)"><i class="ph ph-chart-pie-slice"></i><span>Reports</span></li>
+                <li class="nav-item" onclick="router('settings', this)"><i class="ph ph-gear"></i><span>Settings</span></li>
+            </ul>
+            <div class="sidebar-footer">
+                <img src="" class="user-avatar-lg" id="sidebar-avatar">
+                <div class="user-info">
+                    <h4 id="sidebar-name">User</h4>
+                    <p style="font-size:0.8rem; color:var(--text-secondary);">Pro Plan</p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="topbar">
+                <div class="mobile-header-elements">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="ph ph-list"></i></button>
+                    <div class="brand-area topbar-brand">
+                        <div class="brand-logo"><i class="ph-fill ph-rocket-launch"></i></div>
+                        <div class="brand-text">RISE</div>
+                    </div>
+                    <div class="search-container">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" class="search-input" id="global-search" placeholder="Search tasks, calendar..." onkeyup="handleGlobalSearch(event)">
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <button class="icon-btn" onclick="toggleTheme()"><i class="ph ph-moon" id="theme-icon"></i></button>
+                    <button class="icon-btn" onclick="openNotificationModal()">
+                        <i class="ph ph-bell"></i>
+                        <span class="badge" id="notif-badge" style="display:none;">0</span>
+                    </button>
+                    <button class="icon-btn" onclick="router('settings', null)"><i class="ph ph-gear"></i></button>
+                    <img src="" class="user-avatar-lg" id="top-avatar" style="cursor:pointer;" onclick="router('settings', null)">
+                </div>
+            </header>
+
+            <main class="content-area">
+                <section id="dashboard" class="view-section active-view">
+                    <div style="margin-bottom: 2rem;">
+                        <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">Hello, <span id="dash-name">User</span> 👋</h2>
+                        <p style="color:var(--text-secondary);">Here is your daily overview.</p>
+                    </div>
+                    <div class="dash-grid">
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Projects</span><i class="ph ph-dots-three" style="cursor:pointer;"></i></div>
+                            <div class="donut-chart" id="dash-donut"><div class="donut-hole"><span style="font-size:1.6rem; font-weight:700;" id="dash-project-percent">0%</span></div></div>
+                            <div style="text-align:center; margin-top:1rem; font-size:0.9rem; color:var(--text-secondary);"><span id="dash-active-projects">0</span> Active Projects</div>
+                        </div>
+                        <div class="card" style="grid-column: span 2;">
+                            <div class="card-header"><span class="card-title">Productivity</span><div style="font-size:0.85rem; background:var(--bg-input); padding:0.3rem 0.6rem; border-radius:6px;">Weekly</div></div>
+                            <div class="bar-chart-container" id="dash-prod-chart">
+                                <!-- JS injected -->
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Today's Schedule</span><button class="icon-btn" style="width:32px; height:32px;" onclick="openScheduleModal()"><i class="ph ph-plus"></i></button></div>
+                            <div id="dash-schedule-list" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Active Goals</span></div>
+                            <div style="margin-bottom:1rem;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:0.4rem;"><span>Task Completion</span><span id="dash-goal-percent">0%</span></div>
+                                <div style="background:var(--bg-input); height:6px; border-radius:10px;"><div id="dash-goal-bar" style="width:0%; height:100%; background:var(--primary); border-radius:10px; transition:width 0.5s;"></div></div>
+                            </div>
+                            <div id="dash-pending-container">
+                                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:0.4rem;"><span>Pending Tasks</span><span id="dash-pending-count" style="color:var(--danger)">0</span></div>
+                                <div style="background:var(--bg-input); height:6px; border-radius:10px;"><div style="width:40%; height:100%; background:var(--warning); border-radius:10px;"></div></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Recent Activity</span></div>
+                            <ul class="recent-activity-list" id="dash-activity-list">
+                                <!-- JS injected -->
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Quick Ask</span></div>
+                            <div id="mini-chat-history" style="height:100px; overflow-y:auto; font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.8rem; background:var(--bg-input); padding:0.5rem; border-radius:8px;">Ask: "Add task...", "Show tasks"</div>
+                            <div style="display:flex; gap:0.5rem;"><input type="text" id="mini-chat-input" placeholder="Type..." style="padding:0.4rem;" onkeypress="if(event.key === 'Enter') sendMiniChat()"><button class="btn-primary" style="padding:0.4rem 0.8rem;" onclick="sendMiniChat()"><i class="ph-fill ph-paper-plane-right"></i></button></div>
+                        </div>
+                        <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border:none;">
+                            <div style="display:flex; align-items:center; gap:1rem;">
+                                <div style="background:rgba(255,255,255,0.2); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;"><i class="ph-fill ph-fire"></i></div>
+                                <div><div style="font-size:0.9rem; opacity:0.9;">Study Streak</div><div style="font-size:1.8rem; font-weight:800;"><span id="dash-streak">1</span> Days</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tasks" class="view-section">
+                    <h2 style="margin-bottom: 2rem;">My Tasks</h2>
+                    <div style="display:flex; gap:1rem; margin-bottom:2rem;">
+                        <input type="text" id="task-input-field" placeholder="Add task..." onkeypress="if(event.key === 'Enter') addNewTask()">
+                        <button class="btn-primary" onclick="addNewTask()">Add</button>
+                    </div>
+                    <div id="task-container"></div>
+                </section>
+
+                <section id="planner" class="view-section">
+                    <h2 style="margin-bottom: 1.5rem;">AI Study Planner</h2>
+                    <div class="card" style="max-width: 800px; padding:2rem;">
+                        <h3 style="margin-bottom: 1rem;">Generate Plan</h3>
+                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div><label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Subjects (comma separated)</label><input type="text" id="planner-subject" placeholder="Math, History, Code"></div>
+                            <div><label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Total Hours</label><input type="number" id="planner-hours" placeholder="4"></div>
+                        </div>
+                        <button class="btn-primary" style="width:100%;" onclick="generateAIPlan()"><i class="ph-fill ph-magic-wand"></i> Generate Schedule</button>
+                        <div id="ai-plan-result" style="margin-top:2rem; display:none;">
+                            <h4 style="margin-bottom:1rem; padding-left:0.5rem; border-left:4px solid var(--primary);">Your Optimized Plan</h4>
+                            <div id="ai-schedule-list" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="calendar" class="view-section">
+                    <div class="calendar-header">
+                        <div>
+                            <select id="cal-year-select" class="cal-select" onchange="updateCalendar()"></select>
+                            <span id="cal-month-name" style="font-size:1.1rem; font-weight:700; margin-left:5px;">October</span>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="icon-btn" onclick="changeMonth(-1)"><i class="ph ph-caret-left"></i></button>
+                            <button class="icon-btn" onclick="changeMonth(1)"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="calendar-grid-header">
+                            <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                        </div>
+                        <div class="calendar-grid-days" id="calendar-days"></div>
+                    </div>
+                </section>
+
+                <section id="ai" class="view-section">
+                    <h2 style="margin-bottom: 1rem;">Assistant</h2>
+                    <div class="card" style="height: calc(100vh - 200px); display:flex; flex-direction:column; padding:0; overflow:hidden;">
+                        <div id="chat-history" style="flex:1; padding:1.5rem; overflow-y:auto; background:var(--bg-input); display:flex; flex-direction:column; gap:1rem;">
+                            <div style="text-align:center; margin-top:2rem; color:var(--text-secondary);">
+                                <div style="width:50px; height:50px; background:var(--primary-light); color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:1.5rem;"><i class="ph-fill ph-robot"></i></div>
+                                <h3>I'm ready. Commands:</h3>
+                                <p style="font-size:0.9rem;">"Add task [name]", "Plan [subject] for [hours]", "Show tasks"</p>
+                            </div>
+                        </div>
+                        <div style="padding:1rem; background:var(--bg-card); border-top:1px solid var(--border); display:flex; gap:0.5rem;">
+                            <input type="text" id="chat-input" placeholder="Type message..." onkeypress="if(event.key === 'Enter') sendChat()">
+                            <button class="btn-primary" onclick="sendChat()" style="padding:0 1rem;"><i class="ph-fill ph-paper-plane-right"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="reports" class="view-section">
+                    <h2 style="margin-bottom: 2rem;">Analysis</h2>
+                    <div class="dash-grid">
+                         <div class="card">
+                            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Completion Rate</h3>
+                            <div style="display:flex; align-items:center; justify-content:center; height:180px;">
+                                <div style="text-align:center;">
+                                    <div style="font-size:3rem; font-weight:800; color:var(--teal);" id="report-rate-big">0%</div>
+                                    <div style="color:var(--text-secondary);">of tasks completed</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="background:var(--primary-light); color:var(--primary-dark);">
+                            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;"><i class="ph-fill ph-magic-wand"></i> AI Insight</h3>
+                            <div id="report-content" style="line-height:1.6; font-size:0.95rem;">Loading...</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="margin-top:2rem;" onclick="generateReport()"><i class="ph ph-arrows-clockwise"></i> Refresh</button>
+                </section>
+
+                <section id="settings" class="view-section">
+                    <h2 style="margin-bottom: 2rem;">Settings</h2>
+                    <div class="dash-grid">
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Profile</span></div>
+                            <div style="text-align:center; margin-bottom:1.5rem;">
+                                <img src="" class="user-avatar-lg" id="settings-avatar-preview" style="width:100px; height:100px; margin-bottom:1rem;">
+                            </div>
+                            <label style="display:block; margin-bottom:0.5rem; font-size:0.9rem;">Name</label>
+                            <input type="text" id="settings-name" style="margin-bottom:1rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-size:0.9rem;">Photo</label>
+                            <label style="display:block; padding:0.8rem; border:1px dashed var(--border); text-align:center; border-radius:10px; cursor:pointer;">
+                                <input type="file" id="settings-photo-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+                                <i class="ph ph-upload-simple"></i> Choose File
+                            </label>
+                            <button class="btn-primary" style="width:100%; margin-top:1.5rem;" onclick="saveSettings()">Save</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Preferences</span></div>
+                            <div style="padding:1rem 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                                <div><div style="font-weight:600;">Dark Mode</div></div>
+                                <label class="switch"><input type="checkbox" id="settings-theme-toggle" onchange="toggleTheme()"><span class="slider round"></span></label>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid var(--border);">
+                                 <div><div style="font-weight:600; font-size:0.95rem;">Notifications</div><div style="font-size:0.8rem; color:var(--text-secondary);">Enable toast alerts</div></div>
+                                <label class="switch"><input type="checkbox" checked><span class="slider round"></span></label>
+                            </div>
+                            <div style="padding-top:1rem;">
+                                <div style="font-weight:600; margin-bottom:0.8rem;">Accent Color</div>
+                                <div style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
+                                    <div class="color-option" style="background:#4f46e5" onclick="setAccentColor('#4f46e5')"></div>
+                                    <div class="color-option" style="background:#8b5cf6" onclick="setAccentColor('#8b5cf6')"></div>
+                                    <div class="color-option" style="background:#ec4899" onclick="setAccentColor('#ec4899')"></div>
+                                    <div class="color-option" style="background:#14b8a6" onclick="setAccentColor('#14b8a6')"></div>
+                                    <div class="color-plus-btn"><i class="ph ph-plus"></i><input type="color" onchange="setAccentColor(this.value)"></div>
+                                </div>
+                                <button class="btn-secondary" style="margin-top:1rem; font-size:0.85rem;" onclick="setAccentColor('#4f46e5')">Reset Default</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">Data & Storage</span></div>
+                            <div style="display:flex; flex-direction:column; gap:1.2rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div><strong>Clear Tasks</strong><br><small style="color:var(--text-secondary)">Delete active items</small></div>
+                                    <button class="btn-secondary" onclick="openConfirmModal('Delete all tasks?', () => clearData('tasks'))">Clear</button>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div><strong>Clear Chat</strong><br><small style="color:var(--text-secondary)">Reset AI history</small></div>
+                                    <button class="btn-secondary" onclick="openConfirmModal('Clear chat history?', () => clearData('chat'))">Clear</button>
+                                </div>
+                                <div style="border-top:1px solid var(--border); padding-top:1.2rem; display:flex; justify-content:space-between; align-items:center;">
+                                    <div><strong style="color:var(--danger)">Factory Reset</strong><br><small style="color:var(--text-secondary)">Wipe all data</small></div>
+                                    <button class="btn-danger" onclick="openConfirmModal('Reset EVERYTHING?', () => clearData('all'))">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "AIzaSyAGXXIyjxCxuqHAVEKhxTLcc_2UKpDsW0k"; // Insert your key here
+
+        const state = {
+            tasks: JSON.parse(localStorage.getItem('rise_tasks')) || [],
+            user: JSON.parse(localStorage.getItem('rise_user')) || { name: 'Alex Doe', photo: 'https://ui-avatars.com/api/?name=Alex+Doe&background=4f46e5&color=fff' },
+            events: JSON.parse(localStorage.getItem('rise_events')) || {},
+            schedule: JSON.parse(localStorage.getItem('rise_schedule')) || [],
+            notifications: [],
+            activity: JSON.parse(localStorage.getItem('rise_activity')) || [],
+            streak: parseInt(localStorage.getItem('rise_streak') || 1),
+            theme: localStorage.getItem('rise_theme') || 'light',
+            accent: localStorage.getItem('rise_accent') || '#4f46e5',
+            currentDate: new Date()
+        };
+
+        const holidays = { "0-1": "New Year", "1-14": "Valentine's", "10-31": "Halloween", "11-25": "Christmas" };
+        let modalCallback = null;
+        let confirmCallback = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            updateUI();
+            const yearSelect = document.getElementById('cal-year-select');
+            const currentYear = new Date().getFullYear();
+            for(let i = currentYear - 5; i <= currentYear + 5; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                if(i === currentYear) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+            renderCalendar();
+            populateSettings();
+            updateDashboard();
+            
+            // Check for today's events on load for notification
+            const todayKey = `${currentYear}-${String(state.currentDate.getMonth()+1).padStart(2,'0')}-${String(state.currentDate.getDate()).padStart(2,'0')}`;
+            if(state.events[todayKey]) {
+                state.notifications.push({text: "You have an event today!", time: "Today"});
+            }
+            updateNotifBadge();
+        });
+
+        function updateUI() {
+            document.querySelectorAll('.user-avatar-lg').forEach(img => img.src = state.user.photo);
+            document.getElementById('sidebar-name').innerText = state.user.name;
+            document.getElementById('dash-name').innerText = state.user.name.split(' ')[0];
+            renderTasks();
+            renderSchedule();
+        }
+
+        async function callGemini(prompt) {
+            if (!apiKey) return "API Key missing. Please add it in the code.";
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Error: No response from AI.";
+            } catch (error) {
+                console.error(error);
+                return "Error connecting to AI. Check your network or API key.";
+            }
+        }
+
+        /* --- LOGIC ENGINE --- */
+        function logActivity(text, icon = 'ph-check') {
+            state.activity.unshift({ text, icon, time: "Just now" });
+            if(state.activity.length > 5) state.activity.pop();
+            localStorage.setItem('rise_activity', JSON.stringify(state.activity));
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const total = state.tasks.length;
+            const done = state.tasks.filter(t => t.completed).length;
+            const pending = total - done;
+            const percent = total === 0 ? 0 : Math.round((done/total)*100);
+
+            // Donut: Dynamic Color Logic
+            const donut = document.getElementById('dash-donut');
+            if(total === 0) {
+                donut.style.background = 'var(--border)';
+            } else {
+                const seg = 360 / (total || 1);
+                donut.style.background = `conic-gradient(var(--primary) 0deg ${percent}%, var(--bg-input) ${percent}% 360deg)`;
+            }
+            document.getElementById('dash-project-percent').innerText = `${percent}%`;
+            document.getElementById('dash-active-projects').innerText = total;
+
+            // Prod Chart Labels
+            const chartHtml = ['M','T','W','T','F','S','S'].map((day, i) => {
+                const h = Math.random() * 60 + 20; 
+                return `<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;"><div class="chart-bar ${i===3?'active':''}" style="height:${h}%;"></div><span style="font-size:0.7rem;">${day}</span></div>`;
+            }).join('');
+            document.getElementById('dash-prod-chart').innerHTML = chartHtml;
+
+            // Goals
+            document.getElementById('dash-goal-percent').innerText = `${percent}%`;
+            document.getElementById('dash-goal-bar').style.width = `${percent}%`;
+            
+            const pendingContainer = document.getElementById('dash-pending-container');
+            if(pending === 0) {
+                pendingContainer.style.display = 'none'; 
+            } else {
+                pendingContainer.style.display = 'block';
+                document.getElementById('dash-pending-count').innerText = pending;
+            }
+            
+            document.getElementById('dash-streak').innerText = state.streak;
+
+            const actList = document.getElementById('dash-activity-list');
+            actList.innerHTML = state.activity.length ? state.activity.map(a => `
+                <li class="activity-item"><div class="activity-icon"><i class="ph ${a.icon}"></i></div><div>${a.text}<div style="font-size:0.8rem; color:var(--text-secondary);">${a.time}</div></div></li>
+            `).join('') : '<li style="padding:1rem; text-align:center; color:var(--text-secondary)">No recent activity</li>';
+        }
+
+        /* --- GLOBAL SEARCH --- */
+        function handleGlobalSearch(e) {
+            if(e.key === 'Enter') {
+                const val = document.getElementById('global-search').value.toLowerCase();
+                if(val.includes('task')) router('tasks', null);
+                else if(val.includes('cal')) router('calendar', null);
+                else if(val.includes('sett')) router('settings', null);
+                else if(val.includes('dash')) router('dashboard', null);
+                else {
+                    const found = state.tasks.find(t => t.title.toLowerCase().includes(val));
+                    if(found) { router('tasks', null); showToast(`Found task: ${found.title}`); }
+                    else showToast("No matching view or task found");
+                }
+            }
+        }
+
+        /* --- INTELLIGENT CHAT --- */
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const history = document.getElementById('chat-history');
+            if(history.querySelector('h3')) history.innerHTML = '';
+            
+            history.innerHTML += `<div style="background:var(--primary); color:white; padding:1rem; border-radius:12px; align-self:flex-end; max-width:85%; margin-bottom:1rem;">${text}</div>`;
+            input.value = ''; history.scrollTop = history.scrollHeight;
+
+            // REAL AI CALL
+            const systemPrompt = `You are RISE, a productivity AI.
+            Current tasks: ${JSON.stringify(state.tasks.map(t=>t.title))}.
+            Capabilities:
+            1. If user says "add task [name]", reply "ADDED: [name]" only.
+            2. If user says "plan [subject] for [hours]", reply "PLAN: [subject]|[hours]" only.
+            3. If user says "clear done", reply "CLEAR_DONE" only.
+            4. Otherwise, answer helpfully and concisely.`;
+
+            const response = await callGemini(systemPrompt + "\nUser: " + text);
+            let reply = response;
+
+            // ACTION PARSING
+            if(response.startsWith("ADDED: ")) {
+                const taskName = response.replace("ADDED: ", "").trim();
+                state.tasks.unshift({ id: Date.now(), title: taskName, completed: false });
+                saveTasks(); renderTasks(); logActivity(`AI added: ${taskName}`);
+                reply = `Added "${taskName}" to your tasks.`;
+            } else if(response.startsWith("PLAN: ")) {
+                const parts = response.replace("PLAN: ", "").split("|");
+                generateScheduleLogic(parts[0], parseFloat(parts[1]));
+                reply = `Created a ${parts[1]}h study plan for ${parts[0]}. Check your schedule!`;
+            } else if(response.includes("CLEAR_DONE")) {
+                state.tasks = state.tasks.filter(t => !t.completed);
+                saveTasks(); renderTasks();
+                reply = "Cleared all completed tasks.";
+            }
+
+            history.innerHTML += `<div style="background:var(--bg-card); border:1px solid var(--border); padding:1rem; border-radius:12px; align-self:flex-start; max-width:85%; margin-bottom:1rem;">${reply}</div>`;
+            history.scrollTop = history.scrollHeight;
+        }
+
+        /* --- PLANNER LOGIC --- */
+        async function generateAIPlan() {
+            const subStr = document.getElementById('planner-subject').value;
+            const hours = parseFloat(document.getElementById('planner-hours').value);
+            if(!subStr || !hours) return showToast("Please fill inputs");
+            generateScheduleLogic(subStr, hours);
+        }
+
+        function generateScheduleLogic(subStr, hours) {
+            showToast("Generating...");
+            const subjects = subStr.split(',').map(s=>s.trim());
+            const timePer = (hours * 60) / subjects.length; 
+            let startHr = 9; let startMin = 0;
+            state.schedule = []; 
+            
+            subjects.forEach(sub => {
+                const timeStr = `${String(startHr).padStart(2,'0')}:${String(startMin).padStart(2,'0')}`;
+                state.schedule.push({ time: timeStr, title: `Study ${sub}` });
+                startMin += timePer;
+                while(startMin >= 60) { startMin -= 60; startHr++; }
+            });
+            
+            localStorage.setItem('rise_schedule', JSON.stringify(state.schedule));
+            renderSchedule();
+            updateDashboard();
+            logActivity("Created new study plan", "ph-calendar-plus");
+            
+            if(document.getElementById('ai-plan-result')) {
+                document.getElementById('ai-plan-result').style.display = 'block';
+                document.getElementById('ai-schedule-list').innerHTML = state.schedule.map(s => `
+                    <div style="background:var(--bg-card); padding:0.8rem; border-left:4px solid var(--primary); border-radius:4px; font-size:0.9rem; margin-bottom:0.5rem;">
+                        <strong>${s.time}</strong> - ${s.title}
+                    </div>`).join('');
+            }
+        }
+
+        function sendMiniChat() {
+            const input = document.getElementById('mini-chat-input');
+            const val = input.value;
+            if(!val) return;
+            document.getElementById('chat-input').value = val;
+            router('ai', null);
+            sendChat();
+            input.value = '';
+        }
+
+        /* --- CORE FUNCTIONS --- */
+        function setAccentColor(color) {
+            state.accent = color;
+            localStorage.setItem('rise_accent', color);
+            document.documentElement.style.setProperty('--primary', color);
+            showToast("Accent updated");
+        }
+
+        function updateNotifBadge() {
+            const badge = document.getElementById('notif-badge');
+            if(state.notifications.length > 0) { badge.style.display = 'flex'; badge.innerText = state.notifications.length; } 
+            else { badge.style.display = 'none'; }
+        }
+
+        function openNotificationModal() {
+            const list = document.getElementById('notification-list');
+            list.innerHTML = '';
+            if(state.notifications.length === 0) list.innerHTML = `<li style="text-align:center; padding:1rem; color:var(--text-secondary)">No new notifications</li>`;
+            else state.notifications.forEach(n => list.innerHTML += `<li class="notif-item"><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></li>`);
+            document.getElementById('notification-modal').classList.add('active');
+        }
+        function closeNotificationModal() { document.getElementById('notification-modal').classList.remove('active'); }
+        function clearNotifications() { state.notifications = []; updateNotifBadge(); openNotificationModal(); }
+
+        function renderTasks() {
+            const container = document.getElementById('task-container');
+            container.innerHTML = state.tasks.map(t => `
+                <div class="task-card card" style="padding:1rem; margin-bottom:0.8rem; display:flex; align-items:center; gap:1rem; border-left:4px solid ${t.completed ? 'var(--success)' : 'var(--primary)'};">
+                    <div class="custom-checkbox ${t.completed ? 'checked' : ''}" onclick="toggleTask(${t.id})"><i class="ph-bold ph-check"></i></div>
+                    <span class="task-text ${t.completed ? 'completed' : ''}">${t.title}</span>
+                    <button onclick="deleteTask(${t.id})" style="color:var(--danger); opacity:0.6; margin-left:auto;"><i class="ph ph-trash"></i></button>
+                </div>`).join('');
+            updateDashboard();
+        }
+
+        function addNewTask() {
+            const input = document.getElementById('task-input-field');
+            if(!input.value.trim()) return;
+            state.notifications.unshift({text: `Added: ${input.value}`, time: "Just now"});
+            updateNotifBadge();
+            state.tasks.unshift({ id: Date.now(), title: input.value, completed: false });
+            saveTasks(); renderTasks(); logActivity(`Added task: ${input.value}`); input.value = ''; showToast("Task added");
+        }
+        function toggleTask(id) { const t = state.tasks.find(x => x.id === id); if(t) { t.completed = !t.completed; saveTasks(); renderTasks(); logActivity(t.completed ? "Completed task" : "Unchecked task"); } }
+        function deleteTask(id) { state.tasks = state.tasks.filter(x => x.id !== id); saveTasks(); renderTasks(); }
+        function saveTasks() { localStorage.setItem('rise_tasks', JSON.stringify(state.tasks)); }
+
+        function updateCalendar() { renderCalendar(); }
+        function renderCalendar() {
+            const date = state.currentDate;
+            const month = date.getMonth();
+            const year = parseInt(document.getElementById('cal-year-select').value) || date.getFullYear();
+            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            document.getElementById('cal-month-name').innerText = months[month];
+            document.getElementById('cal-year-select').value = year;
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const grid = document.getElementById('calendar-days');
+            grid.innerHTML = "";
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
+            for(let day=1; day<=daysInMonth; day++) {
+                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const events = state.events[dateKey] || [];
+                const holiday = holidays[`${month}-${day}`];
+                const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+                
+                let html = `<div class="cal-date ${isToday?'today':''}" onclick="openEventModal('${dateKey}')"><span>${day}</span>`;
+                if(holiday) html += `<div class="cal-holiday">${holiday}</div>`;
+                if(events.length > 0) html += `<div class="cal-event-dot"></div>`;
+                html += `</div>`;
+                grid.innerHTML += html;
+            }
+        }
+        function changeMonth(d) { state.currentDate.setMonth(state.currentDate.getMonth() + d); renderCalendar(); }
+
+        function openModal(title, fields, callback) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-label-1').innerText = fields[0].label;
+            document.getElementById('modal-input-1').value = '';
+            document.getElementById('modal-input-1').type = fields[0].type || 'text';
+            if(fields.length > 1) {
+                document.getElementById('modal-group-2').style.display = 'block';
+                document.getElementById('modal-label-2').innerText = fields[1].label;
+                document.getElementById('modal-input-2').value = '';
+            } else { document.getElementById('modal-group-2').style.display = 'none'; }
+            modalCallback = callback;
+            document.getElementById('input-modal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('input-modal').classList.remove('active'); modalCallback = null; }
+        function confirmModal() {
+            if(modalCallback) {
+                const val1 = document.getElementById('modal-input-1').value;
+                const val2 = document.getElementById('modal-input-2').value;
+                if(val1) modalCallback(val1, val2);
+            }
+            closeModal();
+        }
+
+        function openConfirmModal(text, callback) {
+            document.getElementById('confirm-title').innerText = text;
+            confirmCallback = callback;
+            document.getElementById('confirm-modal').classList.add('active');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            const newYesBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+            newYesBtn.addEventListener('click', () => { if(confirmCallback) confirmCallback(); closeConfirmModal(); });
+        }
+        function closeConfirmModal() { document.getElementById('confirm-modal').classList.remove('active'); confirmCallback = null; }
+
+        function router(viewId, el) {
+            document.querySelectorAll('.view-section').forEach(d => d.classList.remove('active-view'));
+            document.getElementById(viewId).classList.add('active-view');
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(d => d.classList.remove('active'));
+                el.classList.add('active');
+            }
+            if(viewId === 'reports') generateReport();
+            closeSidebar();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast'; toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function populateSettings() {
+            document.getElementById('settings-name').value = state.user.name;
+            document.getElementById('settings-avatar-preview').src = state.user.photo;
+            document.getElementById('settings-theme-toggle').checked = state.theme === 'dark';
+        }
+
+        function saveSettings() {
+            state.user.name = document.getElementById('settings-name').value;
+            localStorage.setItem('rise_user', JSON.stringify(state.user));
+            updateUI(); showToast("Profile saved!");
+        }
+
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.user.photo = e.target.result;
+                    document.getElementById('settings-avatar-preview').src = state.user.photo;
+                    showToast("Photo selected. Save to apply.");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearData(type) {
+            if(type === 'tasks') { state.tasks = []; saveTasks(); renderTasks(); showToast("Tasks cleared."); }
+            else if(type === 'chat') { document.getElementById('chat-history').innerHTML = ''; showToast("Chat cleared."); }
+            else if(type === 'all') { localStorage.clear(); location.reload(); }
+        }
+
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('rise_theme', state.theme);
+            loadTheme();
+        }
+        function loadTheme() {
+            document.body.setAttribute('data-theme', state.theme);
+            document.getElementById('theme-icon').className = state.theme === 'light' ? 'ph ph-moon' : 'ph ph-sun';
+            if(document.getElementById('settings-theme-toggle')) document.getElementById('settings-theme-toggle').checked = state.theme === 'dark';
+            document.documentElement.style.setProperty('--primary', state.accent);
+        }
+
+        function generateReport() {
+            const done = state.tasks.filter(t => t.completed).length;
+            const total = state.tasks.length;
+            document.getElementById('report-content').innerHTML = `<p><strong>Status:</strong> ${done}/${total} tasks completed.</p><p>Great job! Keep moving forward.</p>`;
+        }
+        
+        function openEventModal(dateKey) {
+            openModal(`Event: ${dateKey}`, [{label: 'Event Title'}], (title) => {
+                if(!state.events[dateKey]) state.events[dateKey] = [];
+                state.events[dateKey].push({ title, type: 'default' });
+                localStorage.setItem('rise_events', JSON.stringify(state.events));
+                renderCalendar(); showToast("Event added");
+            });
+        }
+        
+        function openScheduleModal() {
+            openModal('Add Schedule', [{label: 'Activity'}, {label: 'Time', type: 'time'}], (title, time) => {
+                if(title && time) {
+                    state.schedule.push({ time, title });
+                    state.schedule.sort((a,b) => a.time.localeCompare(b.time));
+                    localStorage.setItem('rise_schedule', JSON.stringify(state.schedule));
+                    renderSchedule(); showToast("Schedule updated");
+                }
+            });
+        }
+        
+        function renderSchedule() {
+            const list = document.getElementById('dash-schedule-list');
+            list.innerHTML = state.schedule.map((item, idx) => `
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:0.5rem; font-size:0.9rem;">
+                    <div><span style="font-weight:700; color:var(--primary); margin-right:0.5rem;">${item.time}</span> ${item.title}</div>
+                    <i class="ph ph-x" style="cursor:pointer; color:var(--danger);" onclick="deleteSchedule(${idx})"></i>
+                </div>`).join('');
+        }
+        function deleteSchedule(idx) {
+            state.schedule.splice(idx, 1);
+            localStorage.setItem('rise_schedule', JSON.stringify(state.schedule));
+            renderSchedule();
+        }
+    </script>
+</body>
+</html>
